@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tes Daya Ingat – Try Out Psikologi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Lora:wght@400;500&family=Playfair+Display:wght@600;700;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--paper:#F5F5F1;--card:#fff;--ink:#20232B;--blue:#3569B7;--red:#D94850;--yellow:#D8A94C;--grid:#D9DAD5;--muted:#777A7E;--on-blue:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#161A22;--card:#1F2430;--ink:#ECEDEF;--blue:#6C9BE6;--red:#F0737B;--yellow:#E4B95C;--grid:#2C3240;--muted:#9AA0AB;--on-blue:#10131A}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.6 'Lora',Georgia,serif;min-height:100vh;
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;background-position:-1px -1px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--paper);z-index:10}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;margin:0;line-height:1.15}
+.ui{font-family:'IBM Plex Sans',system-ui,sans-serif}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--grid);display:none;align-items:center;justify-content:flex-end;padding:12px 24px}
+.logo{display:flex;gap:10px;align-items:center;font:600 14px 'IBM Plex Sans',sans-serif}
+#hdrTimer{display:none;align-items:center;gap:8px;font:500 16px 'IBM Plex Mono',monospace}
+#hdrTimer.low{color:var(--red)}
+main{max-width:1040px;margin:0 auto;padding:32px 24px 64px}
+.screen{display:none}.screen.on{display:block}
+.card{background:var(--card);border:1px solid var(--grid);border-radius:6px;padding:28px}
+.label{font:500 12px 'IBM Plex Mono',monospace;color:var(--blue);letter-spacing:.04em}
+.btn{font:500 15px 'IBM Plex Sans',sans-serif;background:var(--blue);color:var(--on-blue);border:1px solid var(--blue);border-radius:4px;padding:12px 22px;cursor:pointer}
+.btn.sec{background:transparent;color:var(--blue)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+input[type=text]{width:100%;font:400 17px 'IBM Plex Sans',sans-serif;padding:12px 14px;border:1px solid var(--grid);border-radius:4px;background:var(--card);color:var(--ink)}
+input[type=text]:focus{border-color:var(--blue);outline:2px solid var(--blue);outline-offset:0}
+input.err{border-color:var(--red)}
+.errmsg{color:var(--red);font:400 13px 'IBM Plex Sans',sans-serif;min-height:20px;margin-top:6px}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:center}
+.hero h1{font-size:clamp(40px,7vw,72px);font-weight:800;margin:8px 0 16px}
+.note{font-family:'Lora',serif;font-style:italic;color:var(--blue);transform:rotate(-3deg)}
+/* memorize */
+.memwrap{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start}
+.dial{position:relative;width:240px;height:240px;margin:auto}
+.dial svg{width:100%;height:100%}
+.dial .t{position:absolute;inset:0;display:grid;place-items:center;font:500 34px 'IBM Plex Mono',monospace}
+.rules p{margin:.4em 0 1em}
+.row{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--grid)}
+.row b{font:600 14px 'IBM Plex Sans',sans-serif}
+.row .code{color:var(--blue);font:500 14px 'IBM Plex Mono',monospace}
+/* test */
+.qhead{display:flex;justify-content:space-between;font:400 13px 'IBM Plex Mono',monospace;color:var(--muted);margin-bottom:14px}
+.q{font:600 clamp(20px,3.4vw,28px)/1.3 'Playfair Display',serif;margin:0 0 20px}
+.opt{display:flex;gap:14px;align-items:center;width:100%;text-align:left;font:400 16px 'IBM Plex Sans',sans-serif;background:var(--card);color:var(--ink);border:1px solid var(--grid);border-radius:4px;padding:13px 16px;margin-bottom:10px;cursor:pointer}
+.opt i{font:500 13px 'IBM Plex Mono',monospace;font-style:normal;width:26px;height:26px;border:1px solid var(--grid);border-radius:50%;display:grid;place-items:center;flex:none}
+.opt.sel{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--card))}
+.opt.sel i{background:var(--blue);color:var(--on-blue);border-color:var(--blue)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:10px;flex-wrap:wrap}
+.dots{display:flex;flex-wrap:wrap;gap:4px;margin-top:20px}
+.dots span{width:9px;height:9px;border-radius:2px;background:var(--grid)}
+.dots span.a{background:var(--blue)}.dots span.c{outline:2px solid var(--yellow)}
+/* report */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:20px 0}
+.stat{border:1px solid var(--grid);background:var(--card);padding:14px;border-radius:6px}
+.stat b{display:block;font:700 30px 'Playfair Display',serif}
+.stat span{font:400 13px 'IBM Plex Sans',sans-serif;color:var(--muted)}
+.bar{margin:12px 0}
+.bar div.h{display:flex;justify-content:space-between;font:500 14px 'IBM Plex Sans',sans-serif}
+.bar .tr{height:10px;background:var(--grid);border-radius:2px;margin-top:5px}
+.bar .tr i{display:block;height:100%;background:var(--blue);border-radius:2px}
+.bar .tr i.w{background:var(--red)}.bar .tr i.m{background:var(--yellow)}
+.verdict{display:inline-block;font:600 14px 'IBM Plex Sans',sans-serif;padding:4px 12px;border:1.5px solid var(--blue);color:var(--blue);border-radius:4px}
+@media(max-width:760px){.hero,.memwrap{grid-template-columns:1fr}.row{grid-template-columns:1fr;gap:2px}header{padding:10px 16px}main{padding:20px 16px 48px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div id="hdrTimer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span id="hdrT">60:00</span></div>
+</header>
+<main>
+
+<section class="screen on" id="s-name">
+  <div class="hero">
+    <div>
+      <div class="label">TES PSIKOLOGI</div>
+      <h1>Tes Daya Ingat</h1>
+      <div class="card" style="max-width:460px;margin-top:22px;padding:22px">
+        <label for="nm" class="ui" style="font-weight:500;font-size:14px">Nama lengkap</label>
+        <input type="text" id="nm" placeholder="Masukkan nama lengkap Anda" autocomplete="name" style="margin-top:8px">
+        <div class="errmsg" id="nmErr"></div>
+        <button class="btn" id="start" style="margin-top:8px">Mulai Mengerjakan →</button>
+      </div>
+    </div>
+    <svg viewBox="0 0 300 300" style="width:100%;max-width:360px;margin:auto" fill="none" stroke="var(--blue)" stroke-width="1.5" aria-hidden="true">
+      <circle cx="170" cy="90" r="62" fill="var(--blue)" stroke="none" opacity=".92"/>
+      <path d="M60 190c0-60 40-100 100-100s90 40 90 90c0 30-20 50-45 52l-5 40H110v-40c-30-8-50-20-50-42Z" fill="var(--card)"/>
+      <path d="M100 150c20-30 50-20 60-5s40-15 60 5M95 185c25 15 45-10 70 5s50-5 65 10M120 120c15-15 30 0 40-10" stroke-linecap="round"/>
+      <rect x="30" y="200" width="46" height="46" stroke="var(--grid)"/><rect x="48" y="214" width="16" height="16" fill="var(--red)" stroke="none"/>
+      <path d="M215 60 270 160H160Z" stroke="var(--ink)" opacity=".5"/>
+      <rect x="215" y="215" width="22" height="50" fill="var(--red)" stroke="none"/><rect x="237" y="195" width="22" height="70" fill="var(--blue)" stroke="none"/><circle cx="60" cy="130" r="16" fill="var(--yellow)" stroke="none"/>
+    </svg>
+  </div>
+</section>
+
+<section class="screen" id="s-mem">
+  <div class="label">TAHAP 1 · MENGHAFAL</div>
+  <h2 style="margin:6px 0 20px;font-size:34px">Hafalkan kata-kata berikut</h2>
+  <div class="memwrap">
+    <div class="card" style="text-align:center">
+      <div class="dial"><svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="var(--grid)" stroke-width="8"/>
+        <circle id="arc" cx="100" cy="100" r="88" fill="none" stroke="var(--blue)" stroke-width="8" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+        <g id="hand"><line x1="100" y1="100" x2="100" y2="22" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/><circle cx="100" cy="14" r="6" fill="var(--yellow)"/></g>
+        <circle cx="100" cy="100" r="3" fill="var(--ink)"/>
+      </svg><div class="t" id="memT" style="padding-top:110px;font-size:26px"></div></div>
+      <p class="ui" style="font-size:14px;color:var(--muted);margin:12px 0 0">Layar akan berubah otomatis ketika waktu habis, lalu dilanjutkan dengan soal.</p>
+    </div>
+    <div class="card rules">
+      <p>Kamu diberikan soal pada layar komputer mengenai kata-kata dan harus kamu hafalkan dalam <mark style="background:var(--yellow);color:#20232B;padding:0 4px"><b>waktu 3 menit</b></mark>. Setelah 3 menit layar akan berubah dan dilanjutkan dengan tes berikutnya.</p>
+      <div id="words"></div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="s-test">
+  <div class="card">
+    <p class="q" id="qtext"></p>
+    <div id="opts"></div>
+    <div class="nav">
+      <button class="btn sec" id="prev">← Sebelumnya</button>
+      <button class="btn sec" id="finish" style="border-color:var(--red);color:var(--red)">Selesaikan tes</button>
+      <button class="btn" id="next">Selanjutnya →</button>
+    </div>
+    <div class="errmsg ui" id="finMsg" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<section class="screen" id="s-rep">
+  <div class="card" id="rep"></div>
+</section>
+</main>
+
+<script>
+"use strict";
+const BANK={
+ BUNGA:["Mawar","Melati","Anggrek","Tulip","Dahlia","Kenanga","Teratai","Lily","Edelweis","Krisan"],
+ BUAH:["Mangga","Jambu","Rambutan","Durian","Salak","Manggis","Apel","Anggur","Nanas","Semangka"],
+ SAYUR:["Bayam","Kangkung","Wortel","Sawi","Kubis","Terong","Labu","Buncis","Tauge","Brokoli"],
+ REMPAH:["Kunyit","Jahe","Lengkuas","Ketumbar","Jintan","Kapulaga","Lada","Kencur","Adas","Kayumanis"],
+ POHON:["Jati","Mahoni","Beringin","Cemara","Akasia","Pinus","Trembesi","Sengon","Meranti","Ulin"],
+ BURUNG:["Elang","Kenari","Kutilang","Merpati","Gagak","Pipit","Nuri","Kakatua","Cendrawasih","Perkutut"],
+ IKAN:["Kakap","Tongkol","Gurame","Lele","Bandeng","Tenggiri","Kerapu","Patin","Teri","Mujair"],
+ SERANGGA:["Lebah","Semut","Belalang","Jangkrik","Capung","Nyamuk","Kumbang","Rayap","Kupu-kupu","Kunang-kunang"],
+ REPTIL:["Buaya","Kadal","Ular","Biawak","Komodo","Penyu","Bunglon","Cicak","Kura-kura","Iguana"],
+ MAMALIA:["Harimau","Gajah","Kuda","Sapi","Kambing","Rusa","Beruang","Jerapah","Zebra","Singa"]};
+const CL=[["BUNGA","BUAH","SAYUR","REMPAH","POHON"],["BURUNG","IKAN","SERANGGA","REPTIL","MAMALIA"]];
+const CATS=Object.keys(BANK), TOTAL=60*60, MEM=180;
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const low=c=>c.toLowerCase();
+let S={name:"",set:{},qs:[],idx:0,deadline:0,iv:null,started:0,done:false};
+
+function makeSet(){
+  const set={};
+  for(const c of CATS)set[c]=shuf(BANK[c]).slice(0,5);
+  return set;
+}
+function show(id){document.querySelectorAll(".screen").forEach(e=>e.classList.toggle("on",e.id===id));window.scrollTo(0,0)}
+
+/* 1. name */
+$("start").onclick=()=>{
+  const v=$("nm").value.trim();
+  if(v.length<3||!/\s|[A-Za-z]{3,}/.test(v)){$("nm").classList.add("err");$("nmErr").textContent="Nama lengkap tidak boleh kosong. Isi minimal 3 huruf.";$("nm").focus();return}
+  $("nm").classList.remove("err");$("nmErr").textContent="";
+  S.name=v;S.set=makeSet();startMem();
+};
+$("nm").addEventListener("keydown",e=>{if(e.key==="Enter")$("start").click()});
+
+/* 2. memorize */
+function startMem(){
+  $("words").innerHTML=CATS.map(c=>{
+    return `<div class="row"><b>${c}</b><div>${S.set[c].join(", ")}</div></div>`}).join("");
+  show("s-mem");
+  const end=Date.now()+MEM*1000;
+  const tick=()=>{
+    const left=Math.max(0,(end-Date.now())/1000),p=1-left/MEM;
+    $("arc").style.strokeDashoffset=553*p;
+    $("hand").setAttribute("transform",`rotate(${360*p} 100 100)`);
+    $("memT").textContent=fmt(left);
+    if(left<=0){clearInterval(S.iv);startTest()}
+  };
+  tick();S.iv=setInterval(tick,200);
+}
+
+/* 3. test */
+function makeQ(){
+  const c=CATS[rnd(CATS.length)],G=CL.find(g=>g.includes(c)),k=1+rnd(5),ws=shuf(S.set[c]);
+  const other=()=>{const d=shuf(G.filter(x=>x!==c))[0];return shuf(S.set[d])[0]};
+  let ex=[],T;
+  if(k===1)T=[`Kata ${ws[0]} termasuk dalam jenis ...`,`Manakah jenis yang memuat kata ${ws[0]}?`];
+  else if(k===2)T=[`Kata ${ws[0]} dan ${ws[1]} sama-sama termasuk dalam jenis ...`,`Jenis yang memuat kata ${ws[0]} dan ${ws[1]} adalah ...`];
+  else if(k===3)T=[`Di antara kata ${shuf([ws[0],ws[1],other()]).join(", ")}, dua kata sejenis. Jenis kedua kata itu adalah ...`];
+  else if(k===4){
+    ex=shuf(G.filter(x=>x!==c)).slice(0,2);
+    T=[`Kata ${ws[0]} bukan ${ex.map(low).join(" dan bukan ")}. Jenis kata tersebut adalah ...`];
+  }else T=[`Kata ${ws[0]} dan ${other()} berasal dari dua jenis yang berbeda. Jenis kata ${ws[0]} adalah ...`];  const cats=G;
+  const opts=shuf(cats).map(low);
+  return {type:"ABCDE"[k-1],stem:T[rnd(T.length)],opts,ans:opts.indexOf(low(c))};
+}
+function startTest(){
+  S.qs=[makeQ()];S.idx=0;S.started=Date.now();S.deadline=S.started+TOTAL*1000;
+  $("hdrTimer").style.display="flex";document.querySelector("header").style.display="flex";show("s-test");render();
+  S.iv=setInterval(()=>{
+    const left=(S.deadline-Date.now())/1000;
+    $("hdrT").textContent=fmt(left);$("hdrTimer").classList.toggle("low",left<300);
+    if(left<=0)endTest();
+  },250);
+}
+function render(){
+  const q=S.qs[S.idx];if(!q.shown)q.shown=Date.now();
+  $("qtext").textContent=q.stem;
+  $("opts").innerHTML="";
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement("button");b.className="opt"+(q.sel===i?" sel":"");
+    b.innerHTML=`<i>${"abcde"[i]}</i><span></span>`;b.lastChild.textContent=o;
+    b.onclick=()=>{ if(q.sel==null)q.time=(Date.now()-q.shown)/1000; q.sel=i; render() };
+    $("opts").appendChild(b);
+  });
+  $("prev").disabled=S.idx===0;
+}
+$("prev").onclick=()=>{if(S.idx>0){S.idx--;render()}};
+$("next").onclick=()=>{S.idx++;if(!S.qs[S.idx])S.qs.push(makeQ());render()};
+let finTimer=null;
+$("finish").onclick=()=>{
+  if(finTimer){clearTimeout(finTimer);finTimer=null;$("finMsg").textContent="";endTest();return}
+  $("finMsg").textContent="Waktu belum habis. Tekan Selesaikan tes sekali lagi untuk mengakhiri sekarang.";
+  finTimer=setTimeout(()=>{finTimer=null;$("finMsg").textContent=""},5000);
+};
+
+/* 4. report */
+function analyse(){
+  const used=Math.min(TOTAL,(Math.min(Date.now(),S.deadline)-S.started)/1000);
+  const ans=S.qs.filter(q=>q.sel!=null),ok=ans.filter(q=>q.sel===q.ans);
+  const acc=ans.length?ok.length/ans.length*100:0;
+  const times=ans.map(q=>q.time||0),avg=times.length?times.reduce((a,b)=>a+b,0)/times.length:0;
+  const speed=Math.round(Math.max(0,Math.min(100,100-(avg-6)*(60/19))));
+  const half=Math.floor(ans.length/2),pc=a=>a.length?a.filter(q=>q.sel===q.ans).length/a.length*100:0;
+  const a1=pc(ans.slice(0,half)),a2=pc(ans.slice(half));
+  const stam=ans.length<10?Math.round(acc):Math.round(Math.max(0,Math.min(100,100-Math.max(0,a1-a2)*2)));
+  const rushed=ans.filter(q=>q.time<2&&q.sel!==q.ans).length;
+  const care=ans.length?Math.round(100-rushed/ans.length*300>0?100-rushed/ans.length*300:0):0;
+  const types={A:["Soal satu kata",0,0],B:["Soal dua kata sejenis",0,0],C:["Soal kata sejenis dari tiga kata",0,0],D:["Soal eliminasi jenis",0,0],E:["Soal dua kata beda jenis",0,0]};
+  ans.forEach(q=>{types[q.type][2]++;if(q.sel===q.ans)types[q.type][1]++});
+  const att=Math.round(Math.min(100,ans.length/(used/60)*12.5));
+  const overall=Math.round(acc*.45+speed*.15+stam*.15+Math.max(0,care)*.15+att*.10);
+  const grade=overall>=85?"Sangat Baik":overall>=70?"Baik":overall>=55?"Cukup":"Perlu Ditingkatkan";
+  return {used,n:S.qs.length,ans:ans.length,ok:ok.length,acc:Math.round(acc),avg,speed,stam,care:Math.max(0,care),att,types,overall,grade,rushed,a1,a2};
+}
+function narrative(r){
+  const L=[];
+  L.push(r.acc>=85?"Daya ingat jangka pendek Anda sangat kuat. Kata dan huruf awal yang dihafalkan dapat dipanggil kembali dengan akurat.":r.acc>=70?"Daya ingat Anda tergolong baik. Sebagian besar informasi tersimpan dengan benar, dengan sedikit kekeliruan pada pasangan kelompok dan huruf awal.":r.acc>=55?"Daya ingat Anda cukup. Informasi dasar tertangkap, tetapi masih sering tertukar antar kelompok kata.":"Daya ingat Anda masih perlu dilatih. Banyak asosiasi antara kata, huruf awal, dan kelompok yang belum tersimpan kuat.");
+  L.push(r.speed>=75?"Kecepatan memanggil ingatan tinggi: rata-rata "+r.avg.toFixed(1)+" detik per soal.":r.speed>=50?"Kecepatan pemrosesan sedang, rata-rata "+r.avg.toFixed(1)+" detik per soal.":"Anda cenderung lambat memanggil ingatan (rata-rata "+r.avg.toFixed(1)+" detik per soal), tanda bahwa hafalan belum otomatis.");
+  L.push(r.ans<10?"Jumlah soal terjawab terlalu sedikit untuk menilai ketahanan fokus secara andal.":r.a1-r.a2>10?"Akurasi menurun di paruh kedua tes. Konsentrasi Anda mudah turun pada tugas panjang.":"Akurasi relatif stabil dari awal hingga akhir tes, menunjukkan konsentrasi yang terjaga.");
+  L.push(r.rushed>r.ans*.1?"Ada "+r.rushed+" jawaban salah yang dijawab kurang dari 2 detik. Anda cenderung terburu-buru dan kurang teliti.":"Ketelitian baik: jarang menjawab terburu-buru tanpa memeriksa ingatan.");
+  return L;
+}
+function tips(r){
+  const T=["Hafalkan dengan mengelompokkan: bayangkan satu gambaran untuk tiap kelompok, lalu kaitkan huruf awalnya.","Ulangi huruf awal dengan lisan (misalnya FLSYD) sambil menutup daftar kata.","Latihan rutin 15 menit per hari lebih efektif daripada satu sesi panjang."];
+  if(r.speed<60)T.push("Latih kecepatan dengan batas waktu 10 detik per soal agar pemanggilan ingatan makin otomatis.");
+  if(r.stam<70)T.push("Latih konsentrasi dengan sesi 30 menit tanpa gangguan, lalu naikkan bertahap menuju 90 menit.");
+  if(r.care<70)T.push("Biasakan membaca seluruh pilihan jawaban sebelum memilih.");
+  return T;
+}
+function endTest(){
+  if(S.done)return;S.done=true;clearInterval(S.iv);$("hdrTimer").style.display="none";document.querySelector("header").style.display="none";
+  const r=analyse();S.r=r;const N=narrative(r),T=tips(r);
+  const bar=(l,v)=>`<div class="bar"><div class="h"><span>${l}</span><span class="mono">${v}</span></div><div class="tr"><i class="${v<55?"w":v<70?"m":""}" style="width:${v}%"></i></div></div>`;
+  const tp=Object.values(r.types).map(t=>bar(t[0]+` (${t[1]}/${t[2]})`,t[2]?Math.round(t[1]/t[2]*100):0)).join("");
+  $("rep").innerHTML=`<div class="label">RAPORT PSIKOLOGI</div>
+  <h2 style="font-size:38px;margin:6px 0 4px"></h2><p class="ui" style="color:var(--muted);margin:0 0 16px" id="rd"></p>
+  <span class="verdict">Predikat: ${r.grade}</span>
+  <div class="rgrid"><div class="stat"><b>${r.overall}</b><span>Skor total</span></div><div class="stat"><b>${r.ok}/${r.ans}</b><span>Benar / dijawab</span></div><div class="stat"><b>${r.acc}%</b><span>Akurasi</span></div><div class="stat"><b>${fmt(r.used)}</b><span>Waktu terpakai</span></div></div>
+  <h3 style="font-size:22px;margin-top:18px">Profil kemampuan</h3>
+  ${bar("Daya ingat (akurasi)",r.acc)}${bar("Kecepatan",r.speed)}${bar("Ketahanan konsentrasi",r.stam)}${bar("Ketelitian",r.care)}${bar("Produktivitas",r.att)}
+  <h3 style="font-size:22px;margin-top:22px">Akurasi per jenis soal</h3>${tp}
+  <h3 style="font-size:22px;margin-top:22px">Analisis psikologis</h3>${N.map(x=>`<p>${x}</p>`).join("")}
+  <h3 style="font-size:22px;margin-top:10px">Saran pengembangan</h3><ul>${T.map(x=>`<li>${x}</li>`).join("")}</ul>
+  <p class="ui" style="font-size:13px;color:var(--muted)">Hasil ini merupakan simulasi try out untuk latihan dan bukan diagnosis psikologis resmi.</p>
+  <div class="nav"><button class="btn" id="dl">Unduh raport PDF</button><button class="btn sec" onclick="location.reload()">Ulangi tes</button></div><div class="errmsg ui" id="dlMsg"></div>`;
+  $("rep").querySelector("h2").textContent=S.name;
+  $("rd").textContent="Tes Daya Ingat · "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  $("dl").onclick=()=>makePDF(r,N,T);
+  show("s-rep");
+}
+
+/* 5. PDF */
+async function makePDF(r,N,T){
+  const msg=$("dlMsg");
+  try{
+    const {jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a4"});
+    const W=210,M=18;let y=0;
+    const page=()=>{d.addPage();y=20};
+    const need=h=>{if(y+h>280)page()};
+    d.setFillColor(53,105,183);d.rect(0,0,W,34,"F");
+    d.setTextColor(255);d.setFont("times","bold");d.setFontSize(22);d.text("RAPORT TES DAYA INGAT",M,18);
+    d.setFont("helvetica","normal");d.setFontSize(10);d.text("Try Out Psikologi · Standar Seleksi Akademi TNI",M,26);
+    d.setTextColor(32,35,43);y=46;
+    const kv=(k,v)=>{d.setFont("helvetica","bold");d.setFontSize(11);d.text(k,M,y);d.setFont("helvetica","normal");d.text(String(v),M+42,y);y+=7};
+    kv("Nama lengkap",S.name);kv("Tanggal",new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}));
+    kv("Soal dijawab",`${r.ans} dari ${r.n} soal ditampilkan`);kv("Jawaban benar",`${r.ok} (${r.acc}%)`);kv("Waktu terpakai",fmt(r.used)+" dari 60:00");
+    y+=3;d.setDrawColor(217,218,213);d.line(M,y,W-M,y);y+=9;
+    d.setFont("times","bold");d.setFontSize(16);d.text("Skor total: "+r.overall+"   |   Predikat: "+r.grade,M,y);y+=10;
+    d.setFontSize(14);d.text("Profil kemampuan",M,y);y+=8;
+    const bar=(l,v)=>{need(12);d.setFont("helvetica","normal");d.setFontSize(10.5);d.text(l,M,y);d.text(String(v),W-M,y,{align:"right"});y+=3;d.setFillColor(217,218,213);d.rect(M,y,W-2*M,3.5,"F");d.setFillColor(...(v<55?[217,72,80]:v<70?[216,169,76]:[53,105,183]));d.rect(M,y,(W-2*M)*v/100,3.5,"F");y+=9};
+    bar("Daya ingat (akurasi)",r.acc);bar("Kecepatan",r.speed);bar("Ketahanan konsentrasi",r.stam);bar("Ketelitian",r.care);bar("Produktivitas",r.att);
+    y+=2;need(30);d.setFont("times","bold");d.setFontSize(14);d.text("Akurasi per jenis soal",M,y);y+=8;
+    Object.values(r.types).forEach(t=>bar(`${t[0]} (${t[1]}/${t[2]})`,t[2]?Math.round(t[1]/t[2]*100):0));
+    const para=(title,arr,bul)=>{y+=2;need(20);d.setFont("times","bold");d.setFontSize(14);d.text(title,M,y);y+=7;d.setFont("helvetica","normal");d.setFontSize(10.5);
+      arr.forEach(t=>{const ls=d.splitTextToSize((bul?"• ":"")+t,W-2*M-(bul?4:0));need(ls.length*5.2+2);d.text(ls,M+(bul?2:0),y);y+=ls.length*5.2+2})};
+    para("Analisis psikologis",N,false);para("Saran pengembangan",T,true);
+    y+=4;need(14);d.setFontSize(8.5);d.setTextColor(119,122,126);
+    d.text(d.splitTextToSize("Hasil ini merupakan simulasi try out untuk latihan dan bukan diagnosis psikologis resmi.",W-2*M),M,y);
+    const blob=d.output("blob"),fn="Raport_Tes_Daya_Ingat_"+S.name.replace(/[^A-Za-z0-9]+/g,"_")+".pdf";
+    const dl=window.claude?await window.claude.use("downloads"):null;
+    if(dl){await dl.save({filename:fn,data:blob});msg.textContent="Raport PDF siap disimpan."}
+    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fn;a.click();msg.textContent="Raport PDF diunduh."}
+  }catch(e){msg.textContent=e&&e.code==="declined"?"Unduhan dibatalkan. Tekan Unduh raport PDF untuk mencoba lagi.":"PDF belum bisa dibuat. Periksa koneksi internet lalu coba lagi."}
+}
+</script>
+</body>
+</html>
